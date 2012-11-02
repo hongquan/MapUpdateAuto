@@ -1,0 +1,27 @@
+<%+cbi/valueheader%>
+<script type="text/javascript">//<![CDATA[
+	XHR.poll(20, '<%=luci.dispatcher.build_url('admin', 'services', 'mapupdateauto', 'service_status')%>', null,
+		function(x, rv)
+		{
+			var s = document.getElementById('button');
+			if (!s)
+				return;
+
+			var on = false;
+			if (rv.status == 'ON')
+				on = true
+
+			if (on) {
+				s.value = '<%:ON%>';
+				s.className = 'cbi-button cbi-button-apply';
+			}
+			else {
+				s.value = '<%: OFF %>';
+				s.className = 'cbi-button cbi-input-reset';
+			}
+		}
+	);
+//]]></script>
+
+<input id='button' type="button" class="cbi-button cbi-button-apply" value="<%:Start%>" onclick="" />
+<%+cbi/valuefooter%>
