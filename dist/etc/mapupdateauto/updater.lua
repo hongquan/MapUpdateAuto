@@ -62,6 +62,5 @@ while true do
 	local node = get_node(url)
 	node.active = true
 	local r = update_node(url, node)
-	print(r.ok)
 	sleep(2*60)
 end

@@ -1,27 +1,48 @@
 <%+cbi/valueheader%>
+<input id='button' type="button" class="cbi-button cbi-input-reset" value="<%:OFF%>" onclick="return set_action()" />
+
 <script type="text/javascript">//<![CDATA[
-	XHR.poll(20, '<%=luci.dispatcher.build_url('admin', 'services', 'mapupdateauto', 'service_status')%>', null,
-		function(x, rv)
-		{
-			var s = document.getElementById('button');
-			if (!s)
-				return;
+	var button = document.getElementById('button');
+	var url = '<%=luci.dispatcher.build_url('admin', 'services', 'mapupdateauto', 'service_status')%>';
 
-			var on = false;
-			if (rv.status == 'ON')
-				on = true
-
-			if (on) {
-				s.value = '<%:ON%>';
-				s.className = 'cbi-button cbi-button-apply';
-			}
-			else {
-				s.value = '<%: OFF %>';
-				s.className = 'cbi-button cbi-input-reset';
-			}
+	function set_button_status(btn, stt)
+	{
+		var label_on = '<%:ON%>';
+		var label_off = '<%:OFF%>';
+		if (stt == 'ON' && btn.value != label_on) {
+			btn.value = label_on;
+			btn.className = 'cbi-button cbi-button-apply';
 		}
-	);
+		else if (stt == 'OFF' && btn.value != label_off){
+			btn.value = label_off;
+			btn.className = 'cbi-button cbi-input-reset';
+		}
+	}
+
+	XHR.poll(10, url, null, function(x, rv) {
+		set_button_status(button, rv.status);
+	});
+
+	function set_action() {
+		var action = (button.value == '<%:OFF%>') ? 'start' : 'stop';
+
+		(new XHR()).post(url, {'action': action}, function(xhr) {
+			var rv = null;
+			if (xhr.getResponseHeader("Content-Type").search('json') > 0) {
+				try {
+					rv = eval('(' + xhr.responseText + ')');
+				}
+				catch(e) {
+					json = null;
+					return;
+				}
+			}
+			if (rv.action == 'OK') {
+				set_button_status(button, rv.status);
+			}
+		});
+		return false;
+	}
 //]]></script>
 
-<input id='button' type="button" class="cbi-button cbi-button-apply" value="<%:Start%>" onclick="" />
 <%+cbi/valuefooter%>
