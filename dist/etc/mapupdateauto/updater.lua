@@ -57,10 +57,19 @@ function sleep(n)
 	os.execute("sleep " .. tonumber(n))
 end
 
+function get_myip()
+	local url = 'http://myip.dnsomatic.com/'
+	return client.request_to_buffer(url)
+end
+
 while true do
 	local url = get_url()
 	local node = get_node(url)
+	-- Update new values
 	node.active = true
+	local myip = get_myip()
+	node.ip = myip
+
 	local r = update_node(url, node)
 	sleep(2*60)
 end
